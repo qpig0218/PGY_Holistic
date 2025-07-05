@@ -82,6 +82,68 @@
             color: #64748b; /* slate-500 */
             font-size: 0.875rem; /* text-sm */
         }
+        /* Mobile navigation styles */
+        .mobile-menu {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 100;
+            display: none;
+        }
+        .mobile-menu.active {
+            display: block;
+        }
+        .mobile-menu-content {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            background-color: white;
+            padding: 1rem;
+            transform: translateY(-100%);
+            transition: transform 0.3s ease-in-out;
+        }
+        .mobile-menu.active .mobile-menu-content {
+            transform: translateY(0);
+        }
+        .mobile-nav-item {
+            display: block;
+            padding: 1rem;
+            text-align: center;
+            border-bottom: 1px solid #e5e7eb;
+            font-size: 1.125rem;
+            font-weight: 500;
+            color: #374151;
+            transition: background-color 0.2s;
+        }
+        .mobile-nav-item:hover, .mobile-nav-item.active {
+            background-color: #f3f4f6;
+            color: #0d9488;
+        }
+        .hamburger {
+            cursor: pointer;
+            padding: 0.5rem;
+        }
+        .hamburger span {
+            display: block;
+            width: 25px;
+            height: 3px;
+            background-color: #0f766e;
+            margin: 5px 0;
+            transition: 0.3s;
+        }
+        .hamburger.active span:nth-child(1) {
+            transform: rotate(-45deg) translate(-5px, 6px);
+        }
+        .hamburger.active span:nth-child(2) {
+            opacity: 0;
+        }
+        .hamburger.active span:nth-child(3) {
+            transform: rotate(45deg) translate(-5px, -6px);
+        }
     </style>
 </head>
 <body class="antialiased">
@@ -92,6 +154,7 @@
                 <div class="flex-shrink-0">
                     <h1 class="text-xl font-bold text-teal-700">次世代PGY醫師育成計畫V1</h1>
                 </div>
+                <!-- Desktop Navigation -->
                 <div class="hidden md:block">
                     <div class="ml-10 flex items-baseline space-x-4">
                         <a data-target="vision" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-slate-700 active-nav">計畫緣起</a>
@@ -103,8 +166,39 @@
                         <a data-target="conclusion" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-slate-700">結語</a>
                     </div>
                 </div>
+                <!-- Mobile menu button -->
+                <div class="md:hidden">
+                    <div class="hamburger" id="mobile-menu-button">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                </div>
             </div>
         </nav>
+        
+        <!-- Mobile Navigation Menu -->
+        <div class="mobile-menu" id="mobile-menu">
+            <div class="mobile-menu-content">
+                <div class="flex justify-between items-center p-4 border-b">
+                    <h2 class="text-lg font-bold text-teal-700">選單</h2>
+                    <div class="hamburger active" id="mobile-menu-close">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                </div>
+                <nav>
+                    <a data-target="vision" class="mobile-nav-item active">計畫緣起</a>
+                    <a data-target="model" class="mobile-nav-item">核心模式</a>
+                    <a data-target="operations" class="mobile-nav-item">師資培育與運作</a>
+                    <a data-target="training" class="mobile-nav-item">PGY訓練藍圖</a>
+                    <a data-target="roadmap" class="mobile-nav-item">實施路徑</a>
+                    <a data-target="indicators" class="mobile-nav-item">成效指標</a>
+                    <a data-target="conclusion" class="mobile-nav-item">結語</a>
+                </nav>
+            </div>
+        </div>
     </header>
 
     <main class="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -716,6 +810,58 @@
                     e.preventDefault();
                     const targetId = link.getAttribute('data-target');
                     switchPage(targetId);
+                });
+            });
+
+            // Mobile menu functionality
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+            const mobileMenuClose = document.getElementById('mobile-menu-close');
+            const mobileNavItems = document.querySelectorAll('.mobile-nav-item');
+
+            // Toggle mobile menu
+            const toggleMobileMenu = () => {
+                mobileMenu.classList.toggle('active');
+                mobileMenuButton.classList.toggle('active');
+            };
+
+            // Close mobile menu
+            const closeMobileMenu = () => {
+                mobileMenu.classList.remove('active');
+                mobileMenuButton.classList.remove('active');
+            };
+
+            // Event listeners for mobile menu
+            mobileMenuButton.addEventListener('click', toggleMobileMenu);
+            mobileMenuClose.addEventListener('click', closeMobileMenu);
+
+            // Close menu when clicking on overlay
+            mobileMenu.addEventListener('click', (e) => {
+                if (e.target === mobileMenu) {
+                    closeMobileMenu();
+                }
+            });
+
+            // Handle mobile navigation clicks
+            mobileNavItems.forEach(item => {
+                item.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const targetId = item.getAttribute('data-target');
+                    
+                    // Remove active class from all mobile nav items
+                    mobileNavItems.forEach(navItem => navItem.classList.remove('active'));
+                    // Add active class to clicked item
+                    item.classList.add('active');
+                    
+                    // Update desktop navigation active state too
+                    navLinks.forEach(link => {
+                        link.classList.toggle('active-nav', link.getAttribute('data-target') === targetId);
+                    });
+                    
+                    // Switch page
+                    switchPage(targetId);
+                    // Close mobile menu
+                    closeMobileMenu();
                 });
             });
         });
