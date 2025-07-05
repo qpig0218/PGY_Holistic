@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>全人整合醫療綜論</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Warm Neutral Harmony (Stone, Slate, with Muted Teal Accent) -->
+    <!-- Application Structure Plan: The application abandons the linear, academic structure of the source report in favor of a task-oriented, interactive dashboard. This design decision is based on the user's stated goal: to design a new hospital unit. The structure facilitates this by breaking down the complex information into actionable, thematic sections accessible via a fixed sidebar. The user flow is designed to guide a planner from understanding the core problem ('首頁'), to exploring international precedents ('全球模型比較'), evaluating practical implementation choices ('實踐模式探討'), analyzing critical success factors ('成功要素分析'), and finally, using a '制度設計藍圖' to synthesize payment, team, and training models. This user-centric architecture prioritizes decision support and practical application over passive reading. -->
+    <!-- Visualization & Content Choices: The application uses a mix of interactive charts and diagrams to translate the report's dense text into digestible insights, strictly avoiding SVG and Mermaid JS.
+    - Global Model Comparison (Goal: Compare): Clickable cards (HTML/JS) and a dynamic bar chart (Chart.js) allow users to compare governance/funding models, a key step in policy design.
+    - Implementation Models (Goal: Organize/Compare): A toggleable view (HTML/JS) and a patient journey flow diagram (HTML/CSS) clarify the two primary structural choices (independent dept vs. team) and their impact.
+    - Success Factors (Goal: Inform/Analyze): A radar chart (Chart.js) visualizes the multi-dimensional nature of enablers, while interactive lists (HTML/JS) categorize barriers.
+    - System Design Blueprint (Goal: Synthesize/Inform): Interactive diagrams for payment models, team competencies (IPEC framework as a radial diagram), and PGY training (timeline) provide a concrete, visual toolkit for designing the new unit's core components. All choices are justified by their ability to make the report's findings more accessible and actionable for the target user. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: #f8fafc; /* slate-50 */
+        }
+        .nav-link {
+            transition: all 0.2s ease-in-out;
+        }
+        .nav-link.active {
+            background-color: #0d9488; /* teal-600 */
+            color: white;
+            transform: translateX(4px);
+        }
+        .nav-link:not(.active):hover {
+            background-color: #f1f5f9; /* slate-100 */
+        }
+        .content-section {
+            display: none;
+        }
+        .content-section.active {
+            display: block;
+        }
+        .chart-container {
+            position: relative;
+            margin: auto;
+            height: 320px;
+            width: 100%;
+            max-width: 700px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 400px;
+            }
+        }
+        .custom-card {
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .custom-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        }
+    </style>
+</head>
+<body class="text-slate-700">
+    <div class="flex flex-col md:flex-row min-h-screen">
+        <nav class="w-full md:w-64 bg-white md:border-r border-slate-200 p-4 md:p-6 flex-shrink-0">
+            <h1 class="text-xl font-bold text-teal-700 mb-6">全人整合醫療綜論</h1>
+            <ul class="space-y-2">
+                <li><a href="#home" class="nav-link flex items-center p-3 rounded-lg text-slate-600 font-medium">🏠 首頁總覽</a></li>
+                <li><a href="#global-models" class="nav-link flex items-center p-3 rounded-lg text-slate-600 font-medium">🌍 全球模型比較</a></li>
+                <li><a href="#implementation" class="nav-link flex items-center p-3 rounded-lg text-slate-600 font-medium">🛠️ 實踐模式探討</a></li>
+                <li><a href="#success-factors" class="nav-link flex items-center p-3 rounded-lg text-slate-600 font-medium">🔑 成功要素分析</a></li>
+                <li><a href="#blueprint" class="nav-link flex items-center p-3 rounded-lg text-slate-600 font-medium">📘 制度設計藍圖</a></li>
+                <li><a href="#quality" class="nav-link flex items-center p-3 rounded-lg text-slate-600 font-medium">📈 品質與成效</a></li>
+            </ul>
+        </nav>
+
+        <main class="flex-1 p-4 sm:p-6 md:p-10 flex flex-col">
+            <div class="flex-grow">
+                <div id="home" class="content-section">
+                    <h2 class="text-3xl font-bold text-slate-800 mb-2">建構「以人為本」的未來醫療照護模式</h2>
+                    <p class="text-lg text-slate-500 mb-8">為臺灣醫學中心PGY學程設計創新的全人整合照護模式</p>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                            <h3 class="font-bold text-lg text-red-600 mb-2">當前挑戰</h3>
+                            <p class="text-slate-600">傳統醫療體系面臨人口高齡化與多重共病的壓力，導致照護碎片化、效率低落、出院規劃斷裂等問題，威脅病人安全與醫療品質。</p>
+                        </div>
+                        <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                            <h3 class="font-bold text-lg text-green-600 mb-2">核心解方</h3>
+                            <p class="text-slate-600">「整合醫療」提供協調的結構，「全人照護」提供人文的哲學。兩者結合，建立一個圍繞「完整的人」運作的高效醫療體系。</p>
+                        </div>
+                        <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                            <h3 class="font-bold text-lg text-blue-600 mb-2">最終目標</h3>
+                            <p class="text-slate-600">實現醫療「四重目標」：改善病人體驗、改善群體健康、降低人均成本，並改善醫療提供者的工作環境，創造永續的醫療生態。</p>
+                        </div>
+                    </div>
+
+                    <div class="mt-10 bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                         <h3 class="text-xl font-bold text-slate-800 mb-4 text-center">整合醫療生態系統</h3>
+                         <p class="text-center text-slate-600 mb-6">成功的轉型需要政策、執行、支付、合作、教育與品質等多個層面的協同努力。任何一個環節的失靈，都會削弱整體成效。本儀表板將引導您探索這些關鍵領域。</p>
+                        <div class="w-full overflow-x-auto">
+                            <div class="flex items-center justify-center space-x-2 md:space-x-4 p-4 min-w-[700px]">
+                                <div class="text-center p-4 bg-teal-50 rounded-lg border border-teal-200">
+                                    <div class="text-4xl">📜</div>
+                                    <div class="font-bold mt-2">政策</div>
+                                </div>
+                                <div class="text-2xl font-light text-slate-400">→</div>
+                                <div class="text-center p-4 bg-blue-50 rounded-lg border border-blue-200">
+                                    <div class="text-4xl">⚙️</div>
+                                    <div class="font-bold mt-2">執行</div>
+                                </div>
+                                <div class="text-2xl font-light text-slate-400">→</div>
+                                <div class="text-center p-4 bg-yellow-50 rounded-lg border border-yellow-200">
+                                    <div class="text-4xl">💰</div>
+                                    <div class="font-bold mt-2">支付</div>
+                                </div>
+                                <div class="text-2xl font-light text-slate-400">→</div>
+                                 <div class="text-center p-4 bg-purple-50 rounded-lg border border-purple-200">
+                                    <div class="text-4xl">🤝</div>
+                                    <div class="font-bold mt-2">合作</div>
+                                </div>
+                                 <div class="text-2xl font-light text-slate-400">→</div>
+                                 <div class="text-center p-4 bg-orange-50 rounded-lg border border-orange-200">
+                                    <div class="text-4xl">🎓</div>
+                                    <div class="font-bold mt-2">教育</div>
+                                </div>
+                                <div class="text-2xl font-light text-slate-400">→</div>
+                                 <div class="text-center p-4 bg-green-50 rounded-lg border border-green-200">
+                                    <div class="text-4xl">🏆</div>
+                                    <div class="font-bold mt-2">品質</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="global-models" class="content-section">
+                    <h2 class="text-3xl font-bold text-slate-800 mb-2">全球模型比較</h2>
+                    <p class="text-lg text-slate-500 mb-8">各國因其獨特的體系背景，發展出不同的整合醫療政策模型。點擊下方卡片以互動比較其治理結構、籌資方式、優勢與挑戰。</p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                        <button class="country-btn custom-card text-left p-4 bg-white rounded-lg shadow-sm border-2 border-teal-500" data-country="uk">
+                            <span class="text-2xl">🇬🇧</span>
+                            <h4 class="font-bold mt-2">英國</h4>
+                            <p class="text-sm text-slate-500">法定整合 (ICS)</p>
+                        </button>
+                        <button class="country-btn custom-card text-left p-4 bg-white rounded-lg shadow-sm border-2 border-transparent" data-country="de">
+                            <span class="text-2xl">🇩🇪</span>
+                            <h4 class="font-bold mt-2">德國</h4>
+                            <p class="text-sm text-slate-500">醫師主導 (GK)</p>
+                        </button>
+                        <button class="country-btn custom-card text-left p-4 bg-white rounded-lg shadow-sm border-2 border-transparent" data-country="sg">
+                            <span class="text-2xl">🇸🇬</span>
+                            <h4 class="font-bold mt-2">新加坡</h4>
+                            <p class="text-sm text-slate-500">國家主導 (RHS)</p>
+                        </button>
+                        <button class="country-btn custom-card text-left p-4 bg-white rounded-lg shadow-sm border-2 border-transparent" data-country="us">
+                            <span class="text-2xl">🇺🇸</span>
+                            <h4 class="font-bold mt-2">美國</h4>
+                            <p class="text-sm text-slate-500">市場驅動 (ACOs)</p>
+                        </button>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                        <div>
+                            <h3 id="model-title" class="text-xl font-bold text-slate-800 mb-4"></h3>
+                            <div id="model-details" class="space-y-4 text-slate-600"></div>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold text-slate-800 mb-4">模型特性比較</h3>
+                            <div class="chart-container">
+                                <canvas id="country-chart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="implementation" class="content-section">
+                     <h2 class="text-3xl font-bold text-slate-800 mb-2">實踐模式探討</h2>
+                    <p class="text-lg text-slate-500 mb-8">如何將整合醫療理念落地？本節探討兩種核心組織架構的優劣，並比較傳統與整合模式下的病人旅程。</p>
+                    
+                    <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                        <div class="flex justify-center mb-6 border-b border-slate-200">
+                            <button id="btn-independent" class="impl-btn py-2 px-4 font-medium border-b-2 border-teal-500 text-teal-600">獨立科別模式</button>
+                            <button id="btn-team" class="impl-btn py-2 px-4 font-medium border-b-2 border-transparent text-slate-500">跨科聯合團隊模式</button>
+                        </div>
+
+                        <div id="content-independent" class="impl-content">
+                            <h3 class="font-bold text-xl mb-4 text-slate-800">獨立科別模式 (Hospitalist Model) 奇美之前模式</h3>
+                            <p class="mb-4 text-slate-600">設立一個專門的「全人整合醫療科」或「醫院醫學科」，由受過全人照護與整合醫學訓練的專責醫師（Hospitalist）主導，負責病患從入院到出院的完整照護。此模式旨在建立清晰的權責劃分與照護主體。</p>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="bg-green-50 p-4 rounded-lg border border-green-200">
+                                    <h4 class="font-bold text-green-800">優點</h4>
+                                    <ul class="list-disc list-inside text-green-700 mt-2 space-y-1">
+                                        <li>權責單一，溝通效率高</li>
+                                        <li>容易建立標準化照護流程 (SOP)</li>
+                                        <li>有利於培育專精的整合醫療人才</li>
+                                        <li>對病人而言，有明確的主責團隊</li>
+                                    </ul>
+                                </div>
+                                <div class="bg-red-50 p-4 rounded-lg border border-red-200">
+                                    <h4 class="font-bold text-red-800">缺點</h4>
+                                    <ul class="list-disc list-inside text-red-700 mt-2 space-y-1">
+                                        <li>可能形成新的專業壁壘</li>
+                                        <li>與其他專科的協調可能產生摩擦</li>
+                                        <li>初期建立成本與人力需求高</li>
+                                        <li>適用範圍可能受限於特定疾病群</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="content-team" class="impl-content hidden">
+                            <h3 class="font-bold text-xl mb-4 text-slate-800">跨科聯合團隊模式 (Inter-departmental Team)</h3>
+                            <p class="mb-4 text-slate-600">不設立新科別，而是組成一個虛擬或實體的跨專業團隊，成員來自內科、家醫科、復健科、護理、藥學、社工等。由個案管理師或主責醫師召集，針對複雜共病個案進行共同診療與決策。在PGY學程導入全人整合照護模組，讓此觀念札根落實。</p>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                 <div class="bg-green-50 p-4 rounded-lg border border-green-200">
+                                    <h4 class="font-bold text-green-800">優點</h4>
+                                    <ul class="list-disc list-inside text-green-700 mt-2 space-y-1">
+                                        <li>整合現有資源，建置彈性高</li>
+                                        <li>能匯集多專科的專業知識</li>
+                                        <li>打破既有科別框架，促進全院合作</li>
+                                        <li>適用於處理高度複雜的個案</li>
+                                    </ul>
+                                </div>
+                                 <div class="bg-red-50 p-4 rounded-lg border border-red-200">
+                                    <h4 class="font-bold text-red-800">缺點</h4>
+                                    <ul class="list-disc list-inside text-red-700 mt-2 space-y-1">
+                                        <li>權責劃分較模糊，決策過程可能較長</li>
+                                        <li>溝通成本高，依賴成員的合作意願</li>
+                                        <li>標準化困難，品質較不穩定</li>
+                                        <li>團隊運作需要強而有力的協調者</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="success-factors" class="content-section">
+                     <h2 class="text-3xl font-bold text-slate-800 mb-2">成功要素分析</h2>
+                    <p class="text-lg text-slate-500 mb-8">推動整合醫療轉型如同駕駛一艘大船，需要克服阻力、善用助力。本節視覺化呈現成功的關鍵促進因素與常見的障礙。</p>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                            <h3 class="text-xl font-bold text-slate-800 mb-4">成功的促進因素</h3>
+                            <p class="text-slate-600 mb-4">成功的整合並非偶然，而是多種因素共同作用的結果。其中，領導力、系統支持與人力投入是基石。</p>
+                            <div class="chart-container">
+                                <canvas id="success-radar-chart"></canvas>
+                            </div>
+                        </div>
+                        <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                            <h3 class="text-xl font-bold text-slate-800 mb-4">常見的執行障礙</h3>
+                             <p class="text-slate-600 mb-4">轉型過程中會遇到各種阻力，從概念模糊到系統抗拒。提前識別並應對這些挑戰是成功的關鍵。</p>
+                            <ul class="space-y-3">
+                                <li class="p-4 bg-red-50 border-l-4 border-red-400 rounded-r-lg">
+                                    <h4 class="font-bold text-red-800">概念模糊 & 系統抗拒</h4>
+                                    <p class="text-sm text-red-700">缺乏共享定義、組織慣性、領導支持不足。</p>
+                                </li>
+                                <li class="p-4 bg-orange-50 border-l-4 border-orange-400 rounded-r-lg">
+                                    <h4 class="font-bold text-orange-800">人力 & 財務限制</h4>
+                                    <p class="text-sm text-orange-700">專業人才難尋、培訓不足、支付模式不符。</p>
+                                </li>
+                                <li class="p-4 bg-yellow-50 border-l-4 border-yellow-400 rounded-r-lg">
+                                    <h4 class="font-bold text-yellow-800">技術 & 數位落差</h4>
+                                    <p class="text-sm text-yellow-700">資訊系統落後、數位素養不足、數據不準確。</p>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="blueprint" class="content-section">
+                    <h2 class="text-3xl font-bold text-slate-800 mb-2">制度設計藍圖</h2>
+                    <p class="text-lg text-slate-500 mb-8">本節提供設計新制度的核心元素：如何透過支付改革引導行為、如何建構跨專業合作團隊，以及如何在PGY訓練中融入全人照護精神。</p>
+                    <div class="space-y-8">
+                        <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                            <h3 class="text-xl font-bold text-slate-800 mb-4">支付制度光譜：從論量到論價值</h3>
+                            <p class="text-slate-600 mb-6">支付方式是塑造提供者行為最根本的力量。從傳統的論量計酬 (FFS) 轉向價值導向的替代性支付模式 (APMs)，是驅動整合的必要條件。</p>
+                            <div class="relative w-full py-4">
+                                <input type="range" min="0" max="100" value="0" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer" id="payment-slider">
+                                 <div class="flex justify-between text-sm text-slate-500 mt-2">
+                                    <span class="font-bold">論量計酬 (FFS)</span>
+                                    <span id="payment-model-text" class="font-bold text-teal-600">FFS 改良 (P4P)</span>
+                                    <span class="font-bold">論人計酬</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                            <h3 class="text-xl font-bold text-slate-800 mb-4">跨專業團隊合作 (IPC) 核心能力</h3>
+                            <p class="text-slate-600 mb-6">有效的整合醫療仰賴跨專業團隊的無縫合作。根據IPEC框架，合作能力建立在四大基石之上。</p>
+                            <div class="chart-container" style="height: 350px;">
+                                <canvas id="ipec-chart"></canvas>
+                            </div>
+                        </div>
+
+                        <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                             <h3 class="text-xl font-bold text-slate-800 mb-4">PGY訓練整合藍圖</h3>
+                            <p class="text-slate-600 mb-6">將全人整合精神融入PGY訓練，需要系統性的課程改革，從改變態度開始，逐步發展技能，最終改變臨床行為。</p>
+                             <div class="relative">
+                                <div class="border-l-2 border-teal-300 absolute h-full top-0 left-4"></div>
+                                <div class="space-y-8">
+                                    <div class="pl-12 relative">
+                                        <div class="absolute w-4 h-4 bg-teal-500 rounded-full mt-1.5 -left-1.5 border-4 border-white"></div>
+                                        <h4 class="font-bold text-teal-700">第一階段：建立IPE基礎 (教室學習)</h4>
+                                        <p class="text-slate-600">舉辦跨專業工作坊，介紹IPE核心價值與倫理，改變學員對其他專業的態度與看法。</p>
+                                    </div>
+                                    <div class="pl-12 relative">
+                                        <div class="absolute w-4 h-4 bg-teal-500 rounded-full mt-1.5 -left-1.5 border-4 border-white"></div>
+                                        <h4 class="font-bold text-teal-700">第二階段：發展合作技能 (模擬訓練)</h4>
+                                        <p class="text-slate-600">使用高擬真模擬情境，讓學員在安全環境中練習跨專業溝通、團隊合作與共享決策。</p>
+                                    </div>
+                                    <div class="pl-12 relative">
+                                        <div class="absolute w-4 h-4 bg-teal-500 rounded-full mt-1.5 -left-1.5 border-4 border-white"></div>
+                                        <h4 class="font-bold text-teal-700">第三階段：實踐臨床行為 (實境教學)</h4>
+                                        <p class="text-slate-600">建立模範臨床培訓點 (如全人整合病房)，讓PGY學員在真實臨床環境中共同照護病人，將學習內化為執業習慣。</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="quality" class="content-section">
+                    <h2 class="text-3xl font-bold text-slate-800 mb-2">品質與成效</h2>
+                    <p class="text-lg text-slate-500 mb-8">整合醫療的最終價值體現在品質、安全與病人體驗的提升。然而，證據顯示其成效在不同面向呈現複雜的樣貌。</p>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                            <h3 class="text-xl font-bold text-slate-800 mb-4">成效證據總結</h3>
+                            <p class="text-slate-600 mb-4">整合醫療在「病人體驗」上獲得一致好評，但在「成本效益」方面證據不一。這凸顯了評估複雜系統的挑戰。</p>
+                            <div class="chart-container" style="height: 350px;">
+                                <canvas id="evidence-chart"></canvas>
+                            </div>
+                        </div>
+                         <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+                            <h3 class="text-xl font-bold text-slate-800 mb-4">病人視角：什麼才是最重要的？</h3>
+                            <p class="text-slate-600 mb-4">超越臨床指標，病人最珍視的是關係、溝通與被當作「一個完整的人」來照護。改善病人體驗是提升品質的關鍵槓桿。</p>
+                             <div class="chart-container" style="height: 350px;">
+                                <canvas id="patient-perspective-chart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <footer class="text-center text-sm text-slate-400 py-6 mt-auto">
+                奇美醫院 教學中心與實證醫學暨醫療政策中心製
+            </footer>
+        </main>
+    </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const navLinks = document.querySelectorAll('.nav-link');
+    const contentSections = document.querySelectorAll('.content-section');
+    let countryChart, successRadarChart, evidenceChart, patientPerspectiveChart, ipecChart;
+
+    const countryData = {
+        uk: {
+            title: '🇬🇧 英國：透過整合照護體系 (ICS) 的法定整合',
+            details: `
+                <p><strong>治理：</strong>由法定區域性夥伴關係（NHS、地方政府）主導，強制推動跨部門合作。</p>
+                <p><strong>籌資：</strong>區塊撥款/預算制度。</p>
+                <p><strong>優勢：</strong>具備法定授權，能強力推動合作。</p>
+                <p><strong>挑戰：</strong>執行壓力大、誘因偏向短期目標、評估數據不一致。</p>
+            `,
+            chartData: [8, 4, 9, 3] 
+        },
+        de: {
+            title: '🇩🇪 德國：以醫師為主導的整合模式 (Gesundes Kinzigtal)',
+            details: `
+                <p><strong>治理：</strong>由醫師網絡與管理公司合資經營，具高度創新與靈活性。</p>
+                <p><strong>籌資：</strong>與保險公司簽訂共享節餘合約。</p>
+                <p><strong>優勢：</strong>醫師主導、創新靈活、已證實能節省成本。</p>
+                <p><strong>挑戰：</strong>品質提升證據不明顯、模式的政治可擴展性存疑。</p>
+            `,
+            chartData: [3, 9, 5, 7]
+        },
+        sg: {
+            title: '🇸🇬 新加坡：由國家主導的區域化整合 (RHS)',
+            details: `
+                <p><strong>治理：</strong>由上而下的政府驅動模式，以大型公立醫院為核心。</p>
+                <p><strong>籌資：</strong>區域預算。</p>
+                <p><strong>優勢：</strong>強大的政府主導力，能推動跨部會大型計畫。</p>
+                <p><strong>挑戰：</strong>體系過於以醫院為中心、僵化財務制度抑制基層創新。</p>
+            `,
+            chartData: [9, 3, 7, 4]
+        },
+        us: {
+            title: '🇺🇸 美國：市場驅動的整合 (ACOs)',
+            details: `
+                <p><strong>治理：</strong>由市場驅動，醫療提供者自願組成網絡 (ACOs)。</p>
+                <p><strong>籌資：</strong>替代性支付模式 (APMs)，如共享節餘。</p>
+                <p><strong>優勢：</strong>激勵數據分析與效率創新，如人口分層。</p>
+                <p><strong>挑戰：</strong>支付模式仍受FFS影響、缺乏一致性、有加劇不平等的風險。</p>
+            `,
+            chartData: [2, 8, 4, 9]
+        }
+    };
+
+    const navigateTo = (hash) => {
+        const targetHash = hash || '#home';
+
+        navLinks.forEach(link => {
+            link.classList.toggle('active', link.hash === targetHash);
+        });
+
+        contentSections.forEach(section => {
+            section.classList.toggle('active', '#' + section.id === targetHash);
+        });
+
+        // Initialize charts when their section becomes visible
+        switch (targetHash) {
+            case '#global-models':
+                if (!countryChart) initCountryChart();
+                updateCountryContent('uk');
+                break;
+            case '#success-factors':
+                if (!successRadarChart) initSuccessRadarChart();
+                break;
+            case '#blueprint':
+                if (!ipecChart) initIpecChart();
+                break;
+            case '#quality':
+                if (!evidenceChart) initEvidenceChart();
+                if (!patientPerspectiveChart) initPatientPerspectiveChart();
+                break;
+        }
+    };
+
+    navLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            const hash = e.currentTarget.hash;
+            if (location.hash !== hash) {
+                history.pushState(null, null, hash);
+            }
+            navigateTo(hash);
+        });
+    });
+
+    window.addEventListener('popstate', () => {
+        navigateTo(location.hash);
+    });
+
+    // Initial load
+    navigateTo(location.hash);
+
+
+    function updateCountryContent(country) {
+        document.querySelectorAll('.country-btn').forEach(btn => {
+            if (btn.dataset.country === country) {
+                btn.classList.add('border-teal-500');
+                btn.classList.remove('border-transparent');
+            } else {
+                btn.classList.remove('border-teal-500');
+                btn.classList.add('border-transparent');
+            }
+        });
+
+        const data = countryData[country];
+        document.getElementById('model-title').innerHTML = data.title;
+        document.getElementById('model-details').innerHTML = data.details;
+        
+        if (countryChart) {
+            countryChart.data.datasets[0].data = data.chartData;
+            countryChart.update();
+        }
+    }
+
+    document.querySelectorAll('.country-btn').forEach(btn => {
+        btn.addEventListener('click', () => updateCountryContent(btn.dataset.country));
+    });
+
+    function initCountryChart() {
+        if (countryChart) return;
+        const ctx = document.getElementById('country-chart').getContext('2d');
+        countryChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['政府主導', '醫師/專業主導', '系統彈性', '市場驅動'],
+                datasets: [{
+                    label: '模型特性評分 (1-10)',
+                    data: [],
+                    backgroundColor: 'rgba(13, 148, 136, 0.6)',
+                    borderColor: 'rgba(13, 148, 136, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        max: 10
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                }
+            }
+        });
+    }
+
+    const implBtns = document.querySelectorAll('.impl-btn');
+    const implContents = document.querySelectorAll('.impl-content');
+    implBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            implBtns.forEach(b => {
+                b.classList.remove('border-teal-500', 'text-teal-600');
+                b.classList.add('border-transparent', 'text-slate-500');
+            });
+            btn.classList.add('border-teal-500', 'text-teal-600');
+            btn.classList.remove('border-transparent', 'text-slate-500');
+            
+            const targetId = 'content-' + btn.id.split('-')[1];
+            implContents.forEach(content => {
+                if(content.id === targetId) {
+                    content.classList.remove('hidden');
+                } else {
+                    content.classList.add('hidden');
+                }
+            });
+        });
+    });
+    
+    function initSuccessRadarChart() {
+        if (successRadarChart) return;
+        const ctx = document.getElementById('success-radar-chart').getContext('2d');
+        successRadarChart = new Chart(ctx, {
+            type: 'radar',
+            data: {
+                labels: ['領導力與支持', '人力投入與培訓', '數位優先策略', '利害關係人合作', '財務誘因', '善用現有資產'],
+                datasets: [{
+                    label: '促進因素重要性',
+                    data: [9, 8, 7, 8, 7, 6],
+                    backgroundColor: 'rgba(13, 148, 136, 0.2)',
+                    borderColor: 'rgb(13, 148, 136)',
+                    pointBackgroundColor: 'rgb(13, 148, 136)',
+                    pointBorderColor: '#fff',
+                    pointHoverBackgroundColor: '#fff',
+                    pointHoverBorderColor: 'rgb(13, 148, 136)'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    r: {
+                        angleLines: { display: false },
+                        suggestedMin: 0,
+                        suggestedMax: 10,
+                        ticks: { backdropColor: 'transparent' }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    }
+                }
+            }
+        });
+    }
+
+    function initIpecChart() {
+        if (ipecChart) return;
+        const ctx = document.getElementById('ipec-chart').getContext('2d');
+        ipecChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['價值觀/倫理', '角色與職責', '跨專業溝通', '團隊與團隊合作'],
+                datasets: [{
+                    label: 'IPEC 核心能力',
+                    data: [25, 25, 25, 25],
+                    backgroundColor: [
+                        'rgba(20, 184, 166, 0.7)',
+                        'rgba(14, 116, 144, 0.7)',
+                        'rgba(245, 158, 11, 0.7)',
+                        'rgba(239, 68, 68, 0.7)'
+                    ],
+                    borderColor: [
+                        'rgb(20, 184, 166)',
+                        'rgb(14, 116, 144)',
+                        'rgb(245, 158, 11)',
+                        'rgb(239, 68, 68)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'bottom' },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return context.label;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    const paymentSlider = document.getElementById('payment-slider');
+    const paymentModelText = document.getElementById('payment-model-text');
+    const paymentModels = ['FFS 改良 (P4P)', '共享節餘/風險 (ACO)', '包裹式支付', '論人計酬'];
+    paymentSlider.addEventListener('input', (e) => {
+        const value = e.target.value;
+        let modelIndex = 0;
+        if (value > 20 && value <= 50) modelIndex = 1;
+        else if (value > 50 && value <= 80) modelIndex = 2;
+        else if (value > 80) modelIndex = 3;
+        paymentModelText.textContent = paymentModels[modelIndex];
+    });
+
+
+    function initEvidenceChart() {
+        if (evidenceChart) return;
+        const ctx = document.getElementById('evidence-chart').getContext('2d');
+        evidenceChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['病人體驗', '臨床成效', '成本/利用率', '病人安全'],
+                datasets: [{
+                    label: '證據強度',
+                    data: [9, 5, 3, 4], // 1-3:不一致, 4-6:有限/依情境, 7-10:強且正面
+                    backgroundColor: [
+                        'rgba(22, 163, 74, 0.7)', // green
+                        'rgba(234, 179, 8, 0.7)', // yellow
+                        'rgba(220, 38, 38, 0.7)', // red
+                        'rgba(234, 179, 8, 0.7)' // yellow
+                    ],
+                    borderColor: [
+                        'rgb(22, 163, 74)',
+                        'rgb(234, 179, 8)',
+                        'rgb(220, 38, 38)',
+                        'rgb(234, 179, 8)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 10,
+                        ticks: {
+                            callback: function(value) {
+                                if (value >= 7) return '強且正面';
+                                if (value >= 4) return '混雜/有限';
+                                return '不一致';
+                            }
+                        }
+                    }
+                },
+                plugins: {
+                    legend: { display: false },
+                    tooltip: { enabled: false }
+                }
+            }
+        });
+    }
+    
+    function initPatientPerspectiveChart() {
+        if (patientPerspectiveChart) return;
+        const ctx = document.getElementById('patient-perspective-chart').getContext('2d');
+        patientPerspectiveChart = new Chart(ctx, {
+            type: 'polarArea',
+            data: {
+                labels: ['關係與連續性', '被當作「完整的人」', '溝通與資訊', '協調與導航'],
+                datasets: [{
+                    label: '病人重視的面向',
+                    data: [10, 9, 8, 7],
+                    backgroundColor: [
+                        'rgba(13, 148, 136, 0.5)',
+                        'rgba(5, 150, 105, 0.5)',
+                        'rgba(14, 165, 233, 0.5)',
+                        'rgba(99, 102, 241, 0.5)'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    r: {
+                        ticks: { backdropColor: 'transparent' }
+                    }
+                },
+                plugins: {
+                    legend: { position: 'bottom' }
+                }
+            }
+        });
+    }
+});
+</script>
+</body>
+</html>
