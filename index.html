@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>次世代PGY醫師育成計畫V1</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Calm Harmony (Stone, Teal, Warm Gray) -->
+    <!-- Application Structure Plan: A thematic, single-page application with tabbed navigation. Each tab reveals a distinct content section, creating a focused, page-by-page reading experience instead of a long scroll. This structure improves usability by preventing information overload. Key interactions include toggling charts and exploring detailed tables within each self-contained section. The core focus remains on visually explaining the new interprofessional PGY team and workflow. -->
+    <!-- Visualization & Content Choices: 1. Problem: Global trends shown with a CSS Grid 'map' for engagement. 2. Team Structure: An HTML/CSS diagram to clearly organize and present the innovative PGY interprofessional team. 3. Workflow: An interactive HTML/CSS stepper to explain the process sequentially. 4. Curriculum Change: A togglable Chart.js donut chart to visually compare 'before' and 'after'. 5. Roadmap: An HTML/CSS timeline to show change over time. 6. KPIs: Chart.js bar and radar charts to compare outcomes and prove effectiveness. All choices prioritize interaction and clarity over static text, using JS to update content dynamically. This approach turns a dense report into an explorable story. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: #f8fafc; /* slate-50 */
+            color: #1e293b; /* slate-800 */
+        }
+        .nav-link {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .nav-link:hover {
+            color: #0d9488; /* teal-600 */
+            transform: translateY(-2px);
+        }
+        .active-nav {
+            color: #0d9488; /* teal-600 */
+            font-weight: 700;
+            border-bottom: 2px solid #0d9488;
+        }
+        .section-title {
+            color: #0f766e; /* teal-700 */
+        }
+        .card {
+            transition: all 0.3s ease-in-out;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        }
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -31px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background-color: #f1f5f9; /* slate-100 */
+            border: 4px solid #0d9488; /* teal-600 */
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 350px;
+            max-height: 40vh;
+        }
+        @media (max-width: 768px) {
+            .chart-container {
+                height: 300px;
+                max-height: 50vh;
+            }
+        }
+        .table-header {
+            background-color: #f1f5f9; /* slate-100 */
+            color: #0f766e; /* teal-700 */
+            font-weight: 600;
+        }
+        .page-footer {
+            text-align: center;
+            margin-top: 4rem; /* mt-16 */
+            padding-top: 2rem; /* pt-8 */
+            border-top: 1px solid #e5e7eb; /* border-slate-200 */
+            color: #64748b; /* slate-500 */
+            font-size: 0.875rem; /* text-sm */
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <header class="bg-white/80 backdrop-blur-sm shadow-sm sticky top-0 z-50">
+        <nav class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex-shrink-0">
+                    <h1 class="text-xl font-bold text-teal-700">次世代PGY醫師育成計畫V1</h1>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-4">
+                        <a data-target="vision" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-slate-700 active-nav">計畫緣起</a>
+                        <a data-target="model" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-slate-700">核心模式</a>
+                        <a data-target="operations" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-slate-700">師資培育與運作</a>
+                        <a data-target="training" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-slate-700">PGY訓練藍圖</a>
+                        <a data-target="roadmap" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-slate-700">實施路徑</a>
+                        <a data-target="indicators" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-slate-700">成效指標</a>
+                        <a data-target="conclusion" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-slate-700">結語</a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container mx-auto px-4 sm:px-6 lg:px-8">
+        <section id="vision" class="page-content py-16 sm:py-24 bg-white">
+            <div class="text-center">
+                <p class="text-base font-semibold text-teal-600 tracking-wide uppercase">Why This Matters</p>
+                <h2 class="mt-2 text-3xl font-extrabold text-slate-900 tracking-tight sm:text-4xl">引領臺灣醫療的典範轉移</h2>
+                <p class="mt-6 max-w-2xl mx-auto text-xl text-slate-600">
+                    面對高齡化與慢性病共存的挑戰，傳統分科診療已不足應對。本計畫旨在打破壁壘，將「主治醫師駐院整合模式」與「跨專業合作」植入PGY訓練核心，培養能照護「完整病人」的次世代醫師，從根本上提升醫療品質與體系韌性。
+                </p>
+            </div>
+            <div class="page-footer">奇美醫院 教學中心與實證醫學暨醫療政策中心製</div>
+        </section>
+
+        <section id="model" class="page-content hidden py-16 sm:py-24">
+            <div class="text-center">
+                <h2 class="text-3xl font-bold section-title">核心模式：整合照護的運作引擎</h2>
+                <p class="mt-4 max-w-2xl mx-auto text-lg text-slate-600">本計畫的核心是建立一個以「駐院主治醫師 (Hospitalist)團隊」為軸心，並由「PGY跨領域學員團隊」共同參與的「全人整合照護模式」，徹底重塑病人的住院旅程與學員的學習體驗。</p>
+            </div>
+
+            <div class="mt-16 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+                <div class="card bg-white p-8 rounded-xl shadow-lg">
+                    <h3 class="text-2xl font-bold text-slate-900 text-center">PGY跨領域學員團隊 (IPE in Practice)</h3>
+                    <p class="text-center text-slate-500 mt-2">從獨立學習者，到協同作戰的學習社群。</p>
+                    <div class="relative mt-8">
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <div class="w-40 h-40 rounded-full bg-teal-500 text-white flex flex-col items-center justify-center shadow-2xl">
+                                <span class="text-lg font-bold">駐院主治醫師</span>
+                                <span class="text-xs">(Hospitalist)</span>
+                            </div>
+                        </div>
+                        <div class="relative w-full h-80">
+                            <div class="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-4 p-3 bg-rose-100 rounded-lg shadow-md">
+                                <p class="font-semibold text-rose-800">PGY醫師</p>
+                            </div>
+                            <div class="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-4 p-3 bg-sky-100 rounded-lg shadow-md">
+                                <p class="font-semibold text-sky-800">PGY護理師</p>
+                            </div>
+                            <div class="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 p-3 bg-amber-100 rounded-lg shadow-md">
+                                <p class="font-semibold text-amber-800">PGY藥師</p>
+                            </div>
+                            <div class="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 p-3 bg-indigo-100 rounded-lg shadow-md">
+                                <p class="font-semibold text-indigo-800">PGY各職類師</p>
+                            </div>
+                        </div>
+                        <p class="text-center text-slate-600 mt-6">由<b class="text-teal-700">資深臨床導師</b>群（專科護理師、臨床藥師、社工、治療師）支持與指導。</p>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="text-2xl font-bold text-slate-900 mb-8">重塑病人的住院旅程</h3>
+                    <div class="space-y-8">
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0 w-12 h-12 rounded-full bg-teal-600 text-white flex items-center justify-center text-xl font-bold">1</div>
+                            <div class="ml-6">
+                                <h4 class="text-lg font-bold">入院與全人評估</h4>
+                                <p class="mt-1 text-slate-600">收治高齡多重慢病病人，團隊立即啟動周全性老年評估，奠定整合照護基礎。</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0 w-12 h-12 rounded-full bg-teal-600 text-white flex items-center justify-center text-xl font-bold">2</div>
+                            <div class="ml-6">
+                                <h4 class="text-lg font-bold">跨專業團隊查房</h4>
+                                <p class="mt-1 text-slate-600">每日由當責的Hospitalist帶領PGY學員團隊與資深成員（住院醫師與專科護理師）共同查房，現場整合各專業意見，制定並即時更新照護計畫。</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0 w-12 h-12 rounded-full bg-teal-600 text-white flex items-center justify-center text-xl font-bold">3</div>
+                            <div class="ml-6">
+                                <h4 class="text-lg font-bold">無縫出院轉銜</h4>
+                                <p class="mt-1 text-slate-600">入院即啟動出院準備。PGY團隊需共同規劃，並與社區醫師、長照單位協作，確保病人安全返家，降低再入院風險。</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="page-footer">奇美醫院 教學中心與實證醫學暨醫療政策中心製</div>
+        </section>
+
+        <section id="operations" class="page-content hidden py-16 sm:py-24">
+            <div class="text-center">
+                <h2 class="text-3xl font-bold section-title">師資培育與團隊運作</h2>
+                <p class="mt-4 max-w-2xl mx-auto text-lg text-slate-600">成功的訓練模式，仰賴系統性的師資賦能與結構化的團隊運作，將抽象理念化為具體實踐。</p>
+            </div>
+            <div class="mt-16">
+                <h3 class="text-2xl font-bold text-slate-900 mb-8 text-center">師資培育：養成領導變革的老師</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div class="card bg-slate-50 p-6 rounded-lg">
+                        <h4 class="font-bold text-lg text-teal-700">教學核心職能深化</h4>
+                        <ul class="mt-4 space-y-2 text-slate-600">
+                            <li class="flex items-start"><span class="text-teal-500 mr-2">✓</span><span><b>CBME工作坊</b>：學習評估學員的綜合能力，而非僅考核知識。</span></li>
+                            <li class="flex items-start"><span class="text-teal-500 mr-2">✓</span><span><b>EPAs實務演練</b>：學習如何設定情境、定義信任等級，並給予具體回饋。</span></li>
+                            <li class="flex items-start"><span class="text-teal-500 mr-2">✓</span><span><b>回饋的藝術</b>：學習整合360度回饋，並在臨床工作中給予即時指導。</span></li>
+                        </ul>
+                    </div>
+                    <div class="card bg-slate-50 p-6 rounded-lg">
+                        <h4 class="font-bold text-lg text-teal-700">新興教學領域培力</h4>
+                         <ul class="mt-4 space-y-2 text-slate-600">
+                            <li class="flex items-start"><span class="text-teal-500 mr-2">✓</span><span><b>跨領域共學</b>：與資訊、倫理、預防醫學專家共開課程，讓老師先成為學習者。</span></li>
+                            <li class="flex items-start"><span class="text-teal-500 mr-2">✓</span><span><b>標竿學習</b>：參訪國內外卓越機構，引進創新教學方法。</span></li>
+                            <li class="flex items-start"><span class="text-teal-500 mr-2">✓</span><span><b>建立教學資源庫</b>：共同開發教案、案例庫，形成共享資源。</span></li>
+                        </ul>
+                    </div>
+                    <div class="card bg-slate-50 p-6 rounded-lg">
+                        <h4 class="font-bold text-lg text-teal-700">團隊領導與運作培訓</h4>
+                         <ul class="mt-4 space-y-2 text-slate-600">
+                            <li class="flex items-start"><span class="text-teal-500 mr-2">✓</span><span><b>協作式領導訓練</b>：培訓Hospitalist的領導力、衝突管理與會議主持能力。</span></li>
+                            <li class="flex items-start"><span class="text-teal-500 mr-2">✓</span><span><b>教師學習社群</b>：定期召集師資分享挑戰、交流經驗，建立團隊文化。</span></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-20">
+                <h3 class="text-2xl font-bold text-slate-900 mb-8 text-center">團隊運作：整合照護的日常節奏</h3>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                    <div>
+                        <h4 class="text-xl font-semibold text-center text-slate-800 mb-4">每日運作節奏 (Daily)</h4>
+                        <div class="space-y-4">
+                            <div class="bg-white p-4 rounded-lg shadow-sm border-l-4 border-teal-500">
+                                <p class="font-bold">晨間團隊交班會 (Morning Huddle)</p>
+                                <p class="text-sm text-slate-600">15分鐘快速回顧夜間病況，盤點今日要務，定調工作重點。</p>
+                            </div>
+                            <div class="bg-white p-4 rounded-lg shadow-sm border-l-4 border-teal-500">
+                                <p class="font-bold">跨專業整合查房 (Interprofessional Rounds)</p>
+                                <p class="text-sm text-slate-600">團隊共同移動至床邊，由PGY報告，各專業補充，Hospitalist整合決策。</p>
+                            </div>
+                            <div class="bg-white p-4 rounded-lg shadow-sm border-l-4 border-teal-500">
+                                <p class="font-bold">傍晚結構化交班 (Evening Sign-out)</p>
+                                <p class="text-sm text-slate-600">使用SBAR等工具，將照護計畫與待辦事項清晰交給夜間值班團隊。</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <h4 class="text-xl font-semibold text-center text-slate-800 mb-4">每週運作節奏 (Weekly)</h4>
+                        <div class="space-y-4">
+                            <div class="bg-white p-4 rounded-lg shadow-sm border-l-4 border-sky-500">
+                                <p class="font-bold">出院準備會議 (Discharge Planning Meeting)</p>
+                                <p class="text-sm text-slate-600">系統性檢視即將出院病人，確認所有轉銜需求（輔具、長照）均已到位。</p>
+                            </div>
+                            <div class="bg-white p-4 rounded-lg shadow-sm border-l-4 border-sky-500">
+                                <p class="font-bold">品質與教學會議 (Quality & Educational Meeting)</p>
+                                <p class="text-sm text-slate-600">檢討團隊KPI，進行案例RCA，並由團隊成員進行專題報告或文獻回顧。</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+             <div class="mt-20">
+                <h3 class="text-2xl font-bold text-slate-900 mb-8 text-center">駐院主治醫師團隊運作模式 (6人輪替制)</h3>
+                <p class="mt-4 max-w-2xl mx-auto text-center text-slate-600">為確保照護品質、教學能量與師資的永續發展，我們規劃了6位駐院主治醫師以3個月為一期的輪替工作模式，具體分工如下：</p>
+                <div class="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                    <div class="col-span-1 md:col-span-2 lg:col-span-2 card bg-teal-50 p-6 rounded-lg text-center">
+                        <h4 class="font-bold text-lg text-teal-800">日間臨床照護 (3位)</h4>
+                        <p class="mt-2 text-teal-700">擔任核心角色，負責白天病人的Primary Care，主導每日的跨專業查房與醫療決策。</p>
+                    </div>
+                    <div class="card bg-sky-50 p-6 rounded-lg text-center">
+                        <h4 class="font-bold text-lg text-sky-800">夜間教學醫師 (1位)</h4>
+                        <p class="mt-2 text-sky-700">擔任Nocturnist，專職負責夜間照護與教學，提升夜間醫療品質與住院醫師的學習成效。</p>
+                    </div>
+                    <div class="card bg-amber-50 p-6 rounded-lg text-center">
+                        <h4 class="font-bold text-lg text-amber-800">行政教學與發展 (2位)</h4>
+                        <p class="mt-2 text-amber-700"><b>50%時間</b>投入PGY行政、教學、品質會議、開發新教案(含2堂Chi Mei Coursera課程)及評核EPA；<b>50%時間</b>進行個人化職涯發展，如次專科進修、科研或發展第二專長。</p>
+                    </div>
+                </div>
+            </div>
+            <div class="page-footer">奇美醫院 教學中心與實證醫學暨醫療政策中心製</div>
+        </section>
+
+        <section id="training" class="page-content hidden py-16 sm:py-24">
+            <div class="text-center">
+                <h2 class="text-3xl font-bold section-title">PGY訓練藍圖：培育全方位醫師</h2>
+                <p class="mt-4 max-w-2xl mx-auto text-lg text-slate-600">本計畫非全盤推翻，而是強化落實現有PGY計畫的全人醫療目標。透過課程改革與多維度能力養成，我們將口號化為實踐。</p>
+            </div>
+
+            <div class="mt-12">
+                <h3 class="text-2xl font-bold text-slate-900 mb-4 text-center">課程結構改革</h3>
+                <div class="max-w-3xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                    <div class="text-center md:text-left">
+                        <p class="text-slate-700">我們提議將PGY1現有的<b class="text-teal-600">2個月「選修課程」</b>，調整為<b class="text-teal-600">2個月於「全人整合照護單位」的必修輪訓</b>。此舉可確保所有醫師，無論未來選擇哪個專科，都在行醫初期就建立起全人照護的基礎思維與協作能力。</p>
+                    </div>
+                    <div>
+                        <div class="flex justify-center mb-4 space-x-4">
+                            <button id="pgy1-current-btn" class="px-4 py-2 bg-teal-600 text-white rounded-md shadow-md">現行制度</button>
+                            <button id="pgy1-proposed-btn" class="px-4 py-2 bg-slate-200 text-slate-700 rounded-md">改革提案</button>
+                        </div>
+                        <div class="chart-container h-64 max-h-64">
+                            <canvas id="pgy1CurriculumChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-20">
+                <h3 class="text-2xl font-bold text-slate-900 mb-12 text-center">多維度能力養成</h3>
+                <div class="space-y-12">
+                    <div class="card bg-white p-8 rounded-xl shadow-lg">
+                        <h4 class="text-xl font-bold text-teal-700">1. PGY作為「小型Hospitalist」：整合照護的實踐</h4>
+                        <p class="mt-2 text-slate-600">讓每位PGY醫師在訓練中扮演「小型Hospitalist」，將Hospitalist模式的關鍵要素嵌入其日常臨床實踐中。</p>
+                        <ul class="mt-4 space-y-3">
+                            <li class="flex items-start"><span class="text-teal-500 mr-3 mt-1">●</span><div><b>責任制的實踐</b>：指派PGY擔任特定病人的主要照護者，在指導下對住院過程負起統籌責任，培養扛起全人照護重擔的責任感。</div></li>
+                            <li class="flex items-start"><span class="text-teal-500 mr-3 mt-1">●</span><div><b>跨專業整合查房</b>：由PGY在指導下，定期召集並主持跨專業團隊會議，學習協調團隊、促進溝通，並培養系統性思維。</div></li>
+                            <li class="flex items-start"><span class="text-teal-500 mr-3 mt-1">●</span><div><b>出院準備與轉銜</b>：將「出院計畫」視為核心訓練任務，從入院起即規劃出院安排，並在出院後進行電話追蹤，學習轉銜照護的實戰經驗。</div></li>
+                        </ul>
+                    </div>
+
+                    <div class="card bg-white p-8 rounded-xl shadow-lg">
+                        <h4 class="text-xl font-bold text-teal-700">2. 數位賦能：數據驅動的學習與決策</h4>
+                        <p class="mt-2 text-slate-600">融入數位工具，強化PGY的學習效率與照護品質，培養資訊素養與數位時代的臨床決策能力。</p>
+                        <ul class="mt-4 space-y-3">
+                            <li class="flex items-start"><span class="text-teal-500 mr-3 mt-1">●</span><div><b>BI與臨床儀表板</b>：建立PGY專屬學習儀表板，視覺化呈現照護績效指標（如再入院率），提供個人化的數據導向回饋。</div></li>
+                            <li class="flex items-start"><span class="text-teal-500 mr-3 mt-1">●</span><div><b>AI臨床決策支援</b>：引入AI工具輔助判讀影像、預測病情，培養PGY在AI輔助與自身專業判斷間取得平衡的能力。</div></li>
+                            <li class="flex items-start"><span class="text-teal-500 mr-3 mt-1">●</span><div><b>個案追蹤系統</b>：建立系統讓PGY能長期追蹤自己照護過的病人，了解其出院後狀況，反思並改善醫療品質。</div></li>
+                        </ul>
+                    </div>
+
+                    <div class="card bg-white p-8 rounded-xl shadow-lg">
+                        <h4 class="text-xl font-bold text-teal-700">3. 醫學人文四支柱：深化關懷底蘊</h4>
+                        <p class="mt-2 text-slate-600">將友善、公平、藝術、洞察四支柱融入日常臨床活動，避免人文教育流於空談。</p>
+                        <ul class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
+                            <li><b>友善 (Friendly)</b>：透過模擬病人演練與敘事醫學討論，強化同理心與溝通技巧。</li>
+                            <li><b>公平 (Fairness)</b>：設計多元文化與弱勢醫療教學模組，在案例中探討醫療資源公平分配的倫理議題。</li>
+                            <li><b>藝術 (Art)</b>：舉辦人文沙龍，探討藝術在療癒中的作用，並在教學中強調臨床決策的「藝術性」。</li>
+                            <li><b>洞察 (Insight)</b>：透過常態化的反思日誌與品質改善專案，培養自我省思與對醫療體系的洞察力。</li>
+                        </ul>
+                    </div>
+
+                    <div class="card bg-white p-8 rounded-xl shadow-lg">
+                        <h4 class="text-xl font-bold text-teal-700">4. 生活型態醫學：從治療到預防</h4>
+                        <p class="mt-2 text-slate-600">善用醫院豐富的生活型態紀錄資料，培養PGY從疾病治療拓展至健康促進的視野。</p>
+                        <ul class="mt-4 space-y-3">
+                            <li class="flex items-start"><span class="text-teal-500 mr-3 mt-1">●</span><div><b>評估常規化</b>：要求PGY在收治病人時，常規記錄其飲食、運動、睡眠、壓力等資訊，並納入照護計畫。</div></li>
+                            <li class="flex items-start"><span class="text-teal-500 mr-3 mt-1">●</span><div><b>專題教學查房</b>：每月安排專家主持生活型態醫學查房，指導PGY如何運用生活醫學原則進行介入。</div></li>
+                            <li class="flex items-start"><span class="text-teal-500 mr-3 mt-1">●</span><div><b>創新評量</b>：在OSCE中增設「生活型態醫學站」，評核PGY協助病人自我管理健康行為的具體能力。</div></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-20">
+                <h3 class="text-2xl font-bold text-slate-900 mb-4 text-center">CBME核心能力與EPA原則之落實</h3>
+                <p class="mt-4 max-w-3xl mx-auto text-lg text-slate-600">本計畫所有訓練內容均嚴格對照「能力本位醫學教育(CBME)」的六大核心能力，並融入「可信賴專業活動(EPAs)」的理念，確保培訓成果可有效衡量且契合國家醫學教育改革方向。透過EPA框架，我們能對PGY是否達到各項能力水準做出清晰的信任判斷，將抽象的能力要求，轉化為具體的臨床任務。以下表格清晰呈現各訓練策略與CBME/EPA的對應關係。</p>
+                <div class="mt-8 overflow-x-auto">
+                    <div class="min-w-full inline-block align-middle">
+                        <div class="overflow-hidden border rounded-lg shadow">
+                            <table class="min-w-full divide-y divide-slate-200">
+                                <thead class="table-header">
+                                    <tr>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">新訓練策略</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">實施要點 (PGY訓練內容)</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">對應核心能力 (CBME)</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">相關EPA範例</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">指標成效(監測)</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-slate-200">
+                                    <tr>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-900">整合全人照護</td>
+                                        <td class="px-6 py-4 text-sm text-slate-600">- 定期跨團隊查房,PGY統籌多專業討論<br>- PGY制定出院計畫並跟進轉介<br>- PGY主責所屬病人全程照護</td>
+                                        <td class="px-6 py-4 text-sm text-slate-600">病人照護<br>人際溝通<br>制度實務</td>
+                                        <td class="px-6 py-4 text-sm text-slate-600">協調住院期間跨專業團隊照護與出院銜接</td>
+                                        <td class="px-6 py-4 text-sm text-slate-600">再入院率<br>出院準備完成率<br>病人滿意度</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-900">數位賦能</td>
+                                        <td class="px-6 py-4 text-sm text-slate-600">- 使用BI儀表板自我評估臨床表現<br>- 運用AI決策支援輔助診療<br>- 電子追蹤系統延續照護</td>
+                                        <td class="px-6 py-4 text-sm text-slate-600">實踐學習改進<br>醫學知識<br>制度實務</td>
+                                        <td class="px-6 py-4 text-sm text-slate-600">運用數位工具(資料分析/AI)優化臨床決策</td>
+                                        <td class="px-6 py-4 text-sm text-slate-600">PGY儀表板指標改善幅度<br>AI建議採納率</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-900">醫學人文四支柱</td>
+                                        <td class="px-6 py-4 text-sm text-slate-600">- 人文主題討論會與反思日誌<br>- 模擬訓練溝通同理場景<br>- 文化差異與倫理案例討論</td>
+                                        <td class="px-6 py-4 text-sm text-slate-600">專業素養<br>人際溝通<br>實踐學習</td>
+                                        <td class="px-6 py-4 text-sm text-slate-600">展現在臨床情境中的同理與尊重</td>
+                                        <td class="px-6 py-4 text-sm text-slate-600">360度人文素養評價<br>OSCE人文站通過率</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-900">生活型態醫學</td>
+                                        <td class="px-6 py-4 text-sm text-slate-600">- 常規記錄病人生活習慣並介入<br>- 專題查房聚焦生活調整計畫<br>- 衛教病人並評估改變意願</td>
+                                        <td class="px-6 py-4 text-sm text-slate-600">病人照護<br>醫學知識<br>人際溝通</td>
+                                        <td class="px-6 py-4 text-sm text-slate-600">制定並執行含生活型態調整的治療計畫</td>
+                                        <td class="px-6 py-4 text-sm text-slate-600">慢性病控制率(如HbA1c)<br>OSCE生活醫學站表現</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="page-footer">奇美醫院 教學中心與實證醫學暨醫療政策中心製</div>
+        </section>
+        
+        <section id="roadmap" class="page-content hidden py-16 sm:py-24">
+            <div class="text-center">
+                <h2 class="text-3xl font-bold section-title">實施路徑：分階段推動變革</h2>
+                <p class="mt-4 max-w-2xl mx-auto text-lg text-slate-600">以三年為期，務實地將願景化為可管理的具體步驟，並圍繞「測量 -> 證明 -> 擴展」的核心循環推動。</p>
+            </div>
+            <div class="mt-16 relative">
+                <div class="border-l-4 border-slate-200 absolute h-full top-0 left-4 md:left-1/2 md:-translate-x-1/2"></div>
+                <div class="space-y-16">
+                    <div class="relative pl-12 md:pl-0 md:flex md:justify-between md:items-center">
+                        <div class="md:w-5/12"></div>
+                        <div class="absolute top-1/2 -translate-y-1/2 left-4 md:left-1/2 -translate-x-1/2 w-8 h-8 rounded-full bg-teal-600 border-4 border-white flex items-center justify-center text-white font-bold">1</div>
+                        <div class="md:w-5/12">
+                            <div class="bg-white p-6 rounded-lg shadow-md">
+                                <p class="text-sm font-bold text-teal-600">第 1 年</p>
+                                <h4 class="text-xl font-bold mt-1">奠定基礎與試點運行</h4>
+                                <p class="text-slate-600 mt-2">成立指導委員會，建立跨科聯合團隊模式的試點單位，培訓核心團隊與師資，並建立KPI基線數據。</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="relative pl-12 md:pl-0 md:flex md:flex-row-reverse md:justify-between md:items-center">
+                        <div class="md:w-5/12"></div>
+                        <div class="absolute top-1/2 -translate-y-1/2 left-4 md:left-1/2 -translate-x-1/2 w-8 h-8 rounded-full bg-teal-600 border-4 border-white flex items-center justify-center text-white font-bold">2</div>
+                        <div class="md:w-5/12">
+                            <div class="bg-white p-6 rounded-lg shadow-md">
+                                <p class="text-sm font-bold text-teal-600">第 2 年</p>
+                                <h4 class="text-xl font-bold mt-1">擴展規模與深化改革</h4>
+                                <p class="text-slate-600 mt-2">利用試點數據證明成效，擴大單位規模，將輪訓正式納入PGY必修，並向健保署爭取支付制度支持。</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="relative pl-12 md:pl-0 md:flex md:justify-between md:items-center">
+                        <div class="md:w-5/12"></div>
+                        <div class="absolute top-1/2 -translate-y-1/2 left-4 md:left-1/2 -translate-x-1/2 w-8 h-8 rounded-full bg-teal-600 border-4 border-white flex items-center justify-center text-white font-bold">3</div>
+                        <div class="md:w-5/12">
+                            <div class="bg-white p-6 rounded-lg shadow-md">
+                                <p class="text-sm font-bold text-teal-600">第 3 年</p>
+                                <h4 class="text-xl font-bold mt-1">文化內化與永續發展</h4>
+                                <p class="text-slate-600 mt-2">將整合照護的理念內化為全院文化，當每位同仁都具備此核心價值時，便無需依賴特定科別。實現「處處整合醫療，人人全人照護」的願景，並將此文化典範推廣至全國。</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="page-footer">奇美醫院 教學中心與實證醫學暨醫療政策中心製</div>
+        </section>
+        
+        <section id="indicators" class="page-content hidden py-16 sm:py-24">
+            <div class="text-center">
+                <h2 class="text-3xl font-bold section-title">成效指標與持續改善</h2>
+                <p class="mt-4 max-w-2xl mx-auto text-lg text-slate-600">透過多維度的指標監測與對政策創新的堅持，我們能客觀衡量改革效益，並確保計畫的永續發展。</p>
+            </div>
+            <div class="mt-16 grid grid-cols-1 lg:grid-cols-2 gap-16">
+                <div>
+                    <h3 class="text-2xl font-bold text-slate-900 mb-8 text-center">臨床效益比較</h3>
+                    <div class="chart-container">
+                        <canvas id="kpiBarChart"></canvas>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="text-2xl font-bold text-slate-900 mb-8 text-center">PGY學員能力成長</h3>
+                     <div class="chart-container">
+                        <canvas id="kpiRadarChart"></canvas>
+                    </div>
+                </div>
+            </div>
+             <div class="mt-20">
+                <h3 class="text-2xl font-bold text-slate-900 mb-8 text-center">政策延續與創新平衡</h3>
+                <div class="max-w-4xl mx-auto bg-white p-8 rounded-xl shadow-lg">
+                    <p class="text-slate-600">在師資推動下，我們特別注意延續過去政策的成功經驗，同時勇於創新。原整合醫療科運作期間累積的標準作業流程(SOP)和照護模式，將被提煉轉化為PGY培訓教材和指南。例如，Hospitalist手冊的重點章節可融入PGY學習手冊；原團隊每週追蹤的品質指標，將由PGY繼續監測改善。這確保了政策的延續性，使臨床與教學不因組織調整而脫節。</p>
+                    <p class="mt-4 text-slate-600">而在創新方面，引入數位與人文的新元素，需要不斷蒐集實證以說服教學現場接受。我們規劃在計畫推行一年後召開院內經驗分享會，讓第一批經歷此計畫的PGY和教師交流心得，尋找尚待改善之處，形成持續品質改善(CQI)的循環創新文化。</p>
+                    <p class="mt-4 font-semibold text-teal-700">最終目標是打造出一套奇美醫院獨有的PGY訓練典範：既保有整合全人醫療的厚實基礎，又融入時代所需的新興能力。</p>
+                </div>
+            </div>
+            <div class="page-footer">奇美醫院 教學中心與實證醫學暨醫療政策中心製</div>
+        </section>
+
+        <section id="conclusion" class="page-content hidden py-16 sm:py-24">
+            <div class="text-center">
+                <h2 class="text-3xl font-bold section-title">結語：邁向卓越的學習型照護組織</h2>
+                <p class="mt-6 max-w-3xl mx-auto text-xl text-slate-600">
+                    本計畫的核心，是在既有的PGY訓練體系中，植入整合照護的DNA。我們透過重塑臨床場域、導入跨專業團隊學習、賦予學員「小型Hospitalist」的角色，並融合數位、人文與生活型態醫學等前瞻元素，旨在培養能應對未來挑戰的全方位醫師。
+                </p>
+                <p class="mt-4 max-w-3xl mx-auto text-xl text-slate-600">
+                    這不僅是一項教育改革，更是一場文化轉型。它延續了奇美醫院追求卓越全人照護的傳統，並透過嚴謹的CBME/EPA框架與數據驅動的改善循環，確保了創新的品質與成效。我們相信，透過此計畫培育出的次世代醫師，將不僅是具備精湛技術的專家，更是擁有宏觀視野、協作精神與溫暖關懷的醫療領袖，他們將成為推動臺灣醫療體系持續進步最堅實的力量。
+                </p>
+            </div>
+            <div class="page-footer">奇美醫院 教學中心與實證醫學暨醫療政策中心製</div>
+        </section>
+    </main>
+    
+    <footer class="bg-slate-800 text-white">
+        <div class="container mx-auto py-8 px-4 sm:px-6 lg:px-8 text-center">
+            <p class="text-slate-300">本計畫旨在為臺灣醫療的未來，奠定最堅實的基石。</p>
+            <p class="mt-2 text-sm text-slate-400">&copy; 2025 Next-Gen PGY Physician Training Initiative</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+
+            const chartData = {
+                pgy1: {
+                    current: {
+                        labels: ['核心必修 (10個月)', '選修 (2個月)'],
+                        data: [10, 2],
+                        colors: ['#5eead4', '#a7f3d0'] // teal-300, teal-200
+                    },
+                    proposed: {
+                        labels: ['核心必修 (10個月)', '整合照護必修 (2個月)'],
+                        data: [10, 2],
+                        colors: ['#5eead4', '#0d9488'] // teal-300, teal-600
+                    }
+                },
+                kpiBar: {
+                    labels: ['平均住院日 (天)', '30天再入院率 (%)'],
+                    traditional: [15.2, 21.5],
+                    integrated: [12.1, 14.8]
+                },
+                kpiRadar: {
+                    labels: ['臨床決策', '跨專業合作', '醫病溝通', '系統性實踐', '全人評估'],
+                    before: [65, 40, 60, 45, 50],
+                    after: [85, 90, 80, 88, 92]
+                }
+            };
+            
+            let pgy1Chart, kpiBarChart, kpiRadarChart;
+            let chartsInitialized = false;
+
+            const initCharts = () => {
+                if (chartsInitialized) return;
+                createPgy1Chart();
+                createKpiBarChart();
+                createKpiRadarChart();
+                chartsInitialized = true;
+            };
+
+            const createPgy1Chart = () => {
+                const ctx = document.getElementById('pgy1CurriculumChart').getContext('2d');
+                pgy1Chart = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: chartData.pgy1.current.labels,
+                        datasets: [{
+                            data: chartData.pgy1.current.data,
+                            backgroundColor: chartData.pgy1.current.colors,
+                            borderColor: '#f8fafc',
+                            borderWidth: 4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        return `${context.label}: ${context.raw} 個月`;
+                                    }
+                                }
+                            }
+                        },
+                        animation: {
+                            animateScale: true,
+                            animateRotate: true
+                        }
+                    }
+                });
+            };
+            
+            const createKpiBarChart = () => {
+                const ctx = document.getElementById('kpiBarChart').getContext('2d');
+                kpiBarChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: chartData.kpiBar.labels,
+                        datasets: [
+                            {
+                                label: '傳統專科病房',
+                                data: chartData.kpiBar.traditional,
+                                backgroundColor: '#cbd5e1', // slate-300
+                                borderColor: '#94a3b8', // slate-400
+                                borderWidth: 1
+                            },
+                            {
+                                label: '全人整合照護模式',
+                                data: chartData.kpiBar.integrated,
+                                backgroundColor: '#2dd4bf', // teal-400
+                                borderColor: '#0d9488', // teal-600
+                                borderWidth: 1
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                            }
+                        }
+                    }
+                });
+            };
+
+            const createKpiRadarChart = () => {
+                const ctx = document.getElementById('kpiRadarChart').getContext('2d');
+                kpiRadarChart = new Chart(ctx, {
+                    type: 'radar',
+                    data: {
+                        labels: chartData.kpiRadar.labels,
+                        datasets: [{
+                            label: '輪訓前評估',
+                            data: chartData.kpiRadar.before,
+                            backgroundColor: 'rgba(148, 163, 184, 0.2)', // slate-400
+                            borderColor: '#94a3b8', // slate-400
+                            pointBackgroundColor: '#94a3b8',
+                            pointBorderColor: '#fff',
+                            pointHoverBackgroundColor: '#fff',
+                            pointHoverBorderColor: '#94a3b8'
+                        }, {
+                            label: '輪訓後評估',
+                            data: chartData.kpiRadar.after,
+                            backgroundColor: 'rgba(20, 184, 166, 0.2)', // teal-500
+                            borderColor: '#0d9488', // teal-600
+                            pointBackgroundColor: '#0d9488',
+                            pointBorderColor: '#fff',
+                            pointHoverBackgroundColor: '#fff',
+                            pointHoverBorderColor: '#0d9488'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            r: {
+                                beginAtZero: true,
+                                max: 100,
+                                ticks: {
+                                    stepSize: 20
+                                }
+                            }
+                        },
+                         plugins: {
+                            legend: {
+                                position: 'bottom',
+                            }
+                        }
+                    }
+                });
+            };
+            
+            const pgy1CurrentBtn = document.getElementById('pgy1-current-btn');
+            const pgy1ProposedBtn = document.getElementById('pgy1-proposed-btn');
+
+            pgy1CurrentBtn.addEventListener('click', () => {
+                pgy1Chart.data.labels = chartData.pgy1.current.labels;
+                pgy1Chart.data.datasets[0].data = chartData.pgy1.current.data;
+                pgy1Chart.data.datasets[0].backgroundColor = chartData.pgy1.current.colors;
+                pgy1Chart.update();
+                pgy1CurrentBtn.classList.add('bg-teal-600', 'text-white');
+                pgy1CurrentBtn.classList.remove('bg-slate-200', 'text-slate-700');
+                pgy1ProposedBtn.classList.add('bg-slate-200', 'text-slate-700');
+                pgy1ProposedBtn.classList.remove('bg-teal-600', 'text-white');
+            });
+            
+            pgy1ProposedBtn.addEventListener('click', () => {
+                pgy1Chart.data.labels = chartData.pgy1.proposed.labels;
+                pgy1Chart.data.datasets[0].data = chartData.pgy1.proposed.data;
+                pgy1Chart.data.datasets[0].backgroundColor = chartData.pgy1.proposed.colors;
+                pgy1Chart.update();
+                pgy1ProposedBtn.classList.add('bg-teal-600', 'text-white');
+                pgy1ProposedBtn.classList.remove('bg-slate-200', 'text-slate-700');
+                pgy1CurrentBtn.classList.add('bg-slate-200', 'text-slate-700');
+                pgy1CurrentBtn.classList.remove('bg-teal-600', 'text-white');
+            });
+
+            const navLinks = document.querySelectorAll('.nav-link');
+            const sections = document.querySelectorAll('.page-content');
+
+            const switchPage = (targetId) => {
+                sections.forEach(section => {
+                    if (section.id === targetId) {
+                        section.classList.remove('hidden');
+                    } else {
+                        section.classList.add('hidden');
+                    }
+                });
+
+                navLinks.forEach(link => {
+                    link.classList.toggle('active-nav', link.getAttribute('data-target') === targetId);
+                });
+
+                if (targetId === 'training' || targetId === 'indicators') {
+                    initCharts();
+                }
+                 window.scrollTo(0, 0);
+            };
+
+            navLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const targetId = link.getAttribute('data-target');
+                    switchPage(targetId);
+                });
+            });
+        });
+    </script>
+</body>
+</html>
