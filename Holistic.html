@@ -71,6 +71,7 @@
                 <li><a href="#success-factors" class="nav-link flex items-center p-3 rounded-lg text-slate-600 font-medium">🔑 成功要素分析</a></li>
                 <li><a href="#blueprint" class="nav-link flex items-center p-3 rounded-lg text-slate-600 font-medium">📘 制度設計藍圖</a></li>
                 <li><a href="#quality" class="nav-link flex items-center p-3 rounded-lg text-slate-600 font-medium">📈 品質與成效</a></li>
+                <li><a href="./index.html#model" class="nav-link flex items-center p-3 rounded-lg text-slate-600 font-medium">🚀 次世代PGY醫師育成計畫</a></li>
             </ul>
         </nav>
 
@@ -429,12 +430,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
     navLinks.forEach(link => {
         link.addEventListener('click', (e) => {
-            e.preventDefault();
-            const hash = e.currentTarget.hash;
-            if (location.hash !== hash) {
-                history.pushState(null, null, hash);
+            const href = e.currentTarget.getAttribute('href');
+            // Only prevent default for internal hash navigation
+            if (href && href.startsWith('#')) {
+                e.preventDefault();
+                const hash = e.currentTarget.hash;
+                if (location.hash !== hash) {
+                    history.pushState(null, null, hash);
+                }
+                navigateTo(hash);
             }
-            navigateTo(hash);
+            // Allow external links to work normally
         });
     });
 
